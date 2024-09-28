@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="cGj9Ad" name="BGM01_Synthesizer" projectType="guiapp" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+  <MAINGROUP id="tnYcyk" name="BGM01_Synthesizer">
+    <GROUP id="{8188BBA6-DEA9-6E88-D9EE-5628E74EBBB6}" name="Source">
+      <FILE id="NMnQJE" name="Synthesizer.cpp" compile="1" resource="0" file="Source/Synthesizer.cpp"/>
+      <FILE id="VtmEqg" name="Synthesizer.h" compile="0" resource="0" file="Source/Synthesizer.h"/>
+      <FILE id="fXwmsr" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="uSevxC" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="vCx4bj" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <EXPORTFORMATS>
+    <VS2022 targetFolder="Builds/VisualStudio2022">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="BGM01_Synthesizer"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="BGM01_Synthesizer"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../../../../../../Juce/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../../../../../Juce/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../../../../Juce/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../../../../Juce/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../../../../../Juce/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../../../../../../Juce/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../../../../../Juce/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../../../../../Juce/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../../../../../Juce/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../../../../../Juce/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../../../../../Juce/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../../../../../../Juce/JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2022>
+  </EXPORTFORMATS>
+</JUCERPROJECT>
