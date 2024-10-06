@@ -20,7 +20,7 @@ namespace BGM01
     class SynthesizerBase
     {
     public:
-        SynthesizerBase(double lvl, double freq) : _targetLevel(lvl), _frequency(freq)
+        SynthesizerBase(float lvl, float freq) : _targetLevel(lvl), _frequency(freq)
         {
             _currentLevel = lvl;
         };
@@ -29,21 +29,21 @@ namespace BGM01
 
         };
 
-        virtual double  sample(double t);
-        void    setFrequency(double freq);
-        void    setLevel(double lvl);
+        virtual float  sample(float t);
+        void    setFrequency(float freq);
+        void    setLevel(float lvl);
         void    incrementLevel(void);
     protected:
-        double  _targetLevel;
-        double  _currentLevel;
-        double  _frequency;
+        float  _targetLevel;
+        float  _currentLevel;
+        float  _frequency;
     };
 
     // Noise synthesizer
     class NoiseSynth : public SynthesizerBase
     {
     public:
-        NoiseSynth(double lvl) : SynthesizerBase(lvl, 0.0f)
+        NoiseSynth(float lvl) : SynthesizerBase(lvl, 0.0f)
         {
 
         };
@@ -52,7 +52,7 @@ namespace BGM01
 
         }
 
-        double  sample(double t) override;
+        float  sample(float t) override;
     private:
         juce::Random    _random;
     };
@@ -61,7 +61,7 @@ namespace BGM01
     class SawtoothSynth : public SynthesizerBase
     {
     public:
-        SawtoothSynth(double lvl, double freq) : SynthesizerBase(lvl, freq)
+        SawtoothSynth(float lvl, float freq) : SynthesizerBase(lvl, freq)
         {
 
         }
@@ -70,7 +70,7 @@ namespace BGM01
 
         }
 
-        double  sample(double t) override;
+        float  sample(float t) override;
     private:
 
     };
@@ -79,7 +79,7 @@ namespace BGM01
     class SquareSynth : public SynthesizerBase
     {
     public:
-        SquareSynth(double lvl, double freq) : SynthesizerBase(lvl, freq)
+        SquareSynth(float lvl, float freq) : SynthesizerBase(lvl, freq)
         {
 
         }
@@ -88,7 +88,7 @@ namespace BGM01
 
         }
 
-        double sample(double t) override;
+        float sample(float t) override;
     private:
 
     };

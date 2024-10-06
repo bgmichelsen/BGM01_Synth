@@ -2,7 +2,7 @@
 #include "Synthesizer.h"
 
 //==============================================================================
-MainComponent::MainComponent() :    mainOsc(0.05f, 220.0f), 
+MainComponent::MainComponent() :    mainOsc(0.05f, 880.0f), 
                                     subOsc(0.02f, 220.0f),
                                     noise(0.01f),
                                     keys(keysState, juce::MidiKeyboardComponent::horizontalKeyboard)
@@ -42,7 +42,7 @@ MainComponent::MainComponent() :    mainOsc(0.05f, 220.0f),
 
     // Setup low pass filter frequency slider
     filterFreq.setRange(16.0f, 20000.0f, 0.1f);
-    filterFreq.setValue(2000.0f);
+    filterFreq.setValue(1000.0f);
     filterFreq.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     filterFreq.onValueChange = [this] {
         auto freq = filterFreq.getValue();
@@ -53,10 +53,6 @@ MainComponent::MainComponent() :    mainOsc(0.05f, 220.0f),
     filterLabel.attachToComponent(&filterFreq, true);
     addAndMakeVisible(filterFreq);
     addAndMakeVisible(filterLabel);
-
-    auto freq = filterFreq.getValue();
-    auto coeffs = juce::dsp::IIR::ArrayCoefficients<float>::makeLowPass(_sampleRate, freq);
-    *lpFilter.coefficients = coeffs;
 
 
 
@@ -93,59 +89,26 @@ MainComponent::~MainComponent()
 //==============================================================================
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-    _sampleTime = (1.0 / sampleRate);
+    _sampleTime = static_cast<float>(1.0 / sampleRate);
     _sampleRate = sampleRate;
+
+    juce::dsp::ProcessSpec specs = { sampleRate, (2 *samplesPerBlockExpected), 2 };
+    lpFilter.prepare(specs);
+    hpFilter.prepare(specs);
+    auto freq = filterFreq.getValue();
+    auto coeffs = juce::dsp::IIR::ArrayCoefficients<float>::makeFirstOrderLowPass(_sampleRate, freq);
+    *lpFilter.coefficients = coeffs;
+    coeffs = juce::dsp::IIR::ArrayCoefficients<float>::makeFirstOrderHighPass(_sampleRate, 100.0f);
+    *hpFilter.coefficients = coeffs;
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
+    bufferToFill.clearActiveBufferRegion();
     // Only play notes when a note is on
-    if (_noteOn)
+    //if (_noteOn)
     {
-        // Loop through the audio channels (2 for sterio)
-        for (auto channel = 0; channel < bufferToFill.buffer->getNumChannels(); channel++)
-        {
-            auto* buf = bufferToFill.buffer->getWritePointer(channel, bufferToFill.startSample);
-            double  time = 0.0f;
-            // Loop through number of samples
-            for (int sample = 0; sample < bufferToFill.numSamples; sample++)
-            {
-                // Loop constant variables
-                constexpr double two_thirds = (2.0f / 3.0f);
-
-                // Sample the oscillators
-                auto sample_data = mainOsc.sample(time);
-                sample_data += subOsc.sample(time);
-                sample_data += noise.sample(time);
-
-                // Implement soft clipping
-                if ((-1.0 <= sample_data) && (1.0 >= sample_data))
-                {
-                    double sample_data3rdPower = (sample_data * sample_data * sample_data);
-                    sample_data += (sample_data3rdPower / 3.0f);
-                }
-                else if (1.0 < sample_data)
-                {
-                    sample_data = two_thirds;
-                }
-                else if (-1.0 > sample_data)
-                {
-                    sample_data = -1.0f * two_thirds;
-                }
-
-                // Apply lowpass filter
-                sample_data = lpFilter.processSample(sample_data);
-
-                // Write to the output buffer
-                buf[sample] = sample_data;
-
-                time += _sampleTime;
-            }
-        }
-    }
-    else
-    {
-        bufferToFill.clearActiveBufferRegion();
+        processSynth(bufferToFill);
     }
 }
 
@@ -196,4 +159,45 @@ void MainComponent::handleNoteOn(juce::MidiKeyboardState*, int midiChannel, int 
 void MainComponent::handleNoteOff(juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity)
 {
     _noteOn = false;
+}
+
+void MainComponent::processSynth(const juce::AudioSourceChannelInfo& outBuffer)
+{
+    // NOTE:    Need to use oversampling to get a proper sawtooth sound
+    //          oversampling using naive approach, i.e. buffer twice the 
+    //          size as the original, where every other sample has the
+    //          synth data.
+    
+    juce::AudioBuffer<float> oversample_buf(1, (2 * outBuffer.numSamples));
+    lpFilter.reset();
+
+    auto* data_buf  = oversample_buf.getWritePointer(0, outBuffer.startSample);
+    float time     = 0.0f;
+    for (int sample = 0; sample < outBuffer.numSamples; sample++)
+    {
+        auto sample_data    = mainOsc.sample(time);
+
+        sample_data += subOsc.sample(time);
+        sample_data += noise.sample(time);
+
+        int idx             = (sample << 1);
+        data_buf[idx]       = sample_data;
+        data_buf[idx + 1]   = 0.0f;
+        data_buf[idx]       = lpFilter.processSample(data_buf[idx]);
+        data_buf[idx + 1]   = lpFilter.processSample(data_buf[idx + 1]);
+        data_buf[idx]       = hpFilter.processSample(data_buf[idx]);
+        data_buf[idx + 1]   = hpFilter.processSample(data_buf[idx + 1]);
+        lpFilter.snapToZero();
+        hpFilter.snapToZero();
+        time += _sampleTime;
+    }
+
+    for (int channel = 0; channel < outBuffer.buffer->getNumChannels(); channel++)
+    {
+        auto* out_buf = outBuffer.buffer->getWritePointer(channel, outBuffer.startSample);
+        for (int sample = 0; sample < outBuffer.numSamples; sample++)
+        {
+            out_buf[sample] = data_buf[sample << 1];
+        }
+    }
 }

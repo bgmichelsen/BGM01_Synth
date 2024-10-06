@@ -17,7 +17,7 @@ namespace BGM01
 {
     // @brief       Function for sampling the waveform
     // @param       t = Sample time
-    double SynthesizerBase::sample(double t)
+    float SynthesizerBase::sample(float t)
     {
         // The base class is just a DC source
         return 0.0f;
@@ -25,7 +25,7 @@ namespace BGM01
 
     // @brief       Function to set the waveform frequency
     // @param       freq = The frequency to set to
-    void SynthesizerBase::setFrequency(double freq)
+    void SynthesizerBase::setFrequency(float freq)
     {
         // Make sure frequency is within human hearing range (16Hz to 20kHz)
         if ((10.0f <= freq) && (20000.0f >= freq))
@@ -36,7 +36,7 @@ namespace BGM01
 
     // @brief       Function to set the level for waveform
     // @param       lvl = The level to set to
-    void SynthesizerBase::setLevel(double lvl)
+    void SynthesizerBase::setLevel(float lvl)
     {
         // Make sure level is between 0 and 1
         if ((0.0f <= lvl) && (1.0f >= lvl))
@@ -52,7 +52,7 @@ namespace BGM01
         // Only increment while under the target level
         if (_currentLevel < (_targetLevel - FLT_EPSILON))
         {
-            _currentLevel++;
+            _currentLevel += 0.01;
         }
         else
         {
@@ -62,9 +62,9 @@ namespace BGM01
 
     // @brief       Function override of sample for noise synth
     // @param       t = Sample time
-    double NoiseSynth::sample(double t)
+    float NoiseSynth::sample(float t)
     {
-        double lvlScale = 0.0f;
+        float lvlScale = 0.0f;
 
         if (0.0f < _targetLevel)
         {
@@ -80,10 +80,10 @@ namespace BGM01
 
     // @brief       Function override of sample for sawtooth synth
     // @param       t = Sample time
-    double SawtoothSynth::sample(double t)
+    float SawtoothSynth::sample(float t)
     {
-        double period       = (1.0f / _frequency);
-        double sample_mod   = fmod(t, period);
+        float period       = (1.0f / _frequency);
+        float sample_mod   = fmod(t, period);
         if (0.0f < _targetLevel)
         {
             incrementLevel();
@@ -97,15 +97,16 @@ namespace BGM01
 
     // @brief       Function override of sample for square wave synth
     // @param       t = Sample time
-    double SquareSynth::sample(double t)
+    float SquareSynth::sample(float t)
     {
-        double period = (1.0f / _frequency);
-        double half_period = (period / 2.0f);
+        float period = (1.0f / _frequency);
+        float half_period = (period / 2.0f);
+        float time = fmod(t, period);
 
         if (0.0f < _targetLevel)
         {
             incrementLevel();
-            if (t < half_period)
+            if (time < half_period)
             {
                 return (1.0f * _currentLevel);
             }

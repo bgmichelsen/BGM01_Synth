@@ -32,6 +32,7 @@ private:
     void timerCallback() override;
     void handleNoteOn(juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override;
     void handleNoteOff(juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override;
+    void processSynth(const juce::AudioSourceChannelInfo& outBuffer);
 
     // Objects
     BGM01::SawtoothSynth    mainOsc;
@@ -50,11 +51,12 @@ private:
     juce::Label             noiseLabel;
     juce::Label             filterLabel;
 
-    juce::dsp::IIR::Filter<float>  lpFilter;
+    juce::dsp::IIR::Filter<float>   lpFilter;
+    juce::dsp::IIR::Filter<float>   hpFilter;
     
     // Variables
     double                  _sampleRate;
-    double                  _sampleTime;
+    float                   _sampleTime;
     bool                    _noteOn;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
